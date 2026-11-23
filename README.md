@@ -1,7 +1,7 @@
 <div>
   <p align="center">
     <a href="https://platform.composio.dev/?utm_source=Github&utm_medium=Youtube&utm_campaign=2025-11&utm_content=AwesomeSkills">
-    <img width="1280" height="640" alt="Composio banner" src="assets/media/awesome-agent-skills.png">
+    <img width="100%" alt="Composio banner" src="assets/media/awesome-agent-skills.png">
     </a>
   </p>
 </div>
@@ -22,140 +22,161 @@
 
 <div align="center">
 
-简体中文 | [English](docs/README_EN.md) | [日本語](docs/README_JA.md) 
+English | [简体中文](docs/README_ZH.md) | [日本語](docs/README_JA.md)
 
 </div>
 
-本项目致力于遵循少而精的原则，收集和分享最优质的 Skill 资源、教程和实践案例，帮助更多人轻松迈出搭建 Agent 的第一步。
+This project follows the principle of quality over quantity, collecting and sharing the best Skill resources, tutorials, and practices to help more people take their first step toward building a personalized Agent.
 
-> 如果觉得这个项目对你有所帮助，还请帮忙点个 🌟 让更多人知晓。同时，也欢迎关注我的 𝕏 账号 [@李不凯正在研究](https://x.com/libukai) ，即时获取 Agent Skill 的最新资源和实战教程！
+> Follow me on 𝕏 [@libukai](https://x.com/libukai) and 💬 WeChat Official Account [@李不凯正在研究](https://mp.weixin.qq.com/s/uer7HvD2Z9ZbJSPEZWHKRA?scene=0&subscene=90) for the latest Skills resources and practical tutorials!
 
-## 快速入门
+## Quick Start
 
-Skill 是一种轻量级的 Agent 构建方案，通过封装特定的业务流程与行业知识，强化 AI 执行特定任务的专业能力。
+Skill is a lightweight universal standard that packages workflows and professional knowledge to enhance AI's ability to perform specific tasks.
 
-面对重复性的任务需求，你无需在每次对话中反复输入背景信息。只需安装对应的 Skill，AI 即可习得该领域的专业技能。
+For recurring tasks, you no longer need to repeat the same background information in every conversation. Install the corresponding Skill, and the Agent can acquire the relevant capabilities.
 
-历经半年的迭代演进，Skill 已成为增强 AI 垂直领域能力的标准方案，并获得了各类 Agent 框架与 AI 产品的广泛支持。
+After nearly a year of evolution, Skill has become a standard way to extend AI with domain-specific capabilities and is now supported by mainstream Agent Harness frameworks and AI products.
 
-## 标准结构
+## Support Status
 
-根据标准定义，每个 Skill 都是一个规范化命名的文件夹，其中包含了流程、资料、脚本等各类资源。通过在上下文中渐进式导入这些文件，AI 即可学会相应的技能。
+The open Skill specification has been adopted by many hosts, including Claude Code, ChatGPT and Codex, GitHub Copilot, Cursor, Gemini CLI, VS Code, OpenCode, Kiro, and JetBrains Junie. Search paths and support for experimental fields vary by host; consult the [Agent Skills Client Showcase](https://agentskills.io/clients) and each product's documentation for current details.
+
+## Standard Structure
+
+Agent Skills is an [open specification](https://agentskills.io/specification) initiated by Anthropic and maintained with the community. Each Skill is a standardized folder containing workflows, references, scripts, and other resources that an agent loads progressively.
 
 ```markdown
 my-skill/
-├── SKILL.md          # 必需：流程说明和元数据
-├── references/       # 可选：参考资料
-├── scripts/          # 可选：可执行脚本
-└── assets/           # 可选：模板、资源
+├── SKILL.md          # Required: metadata + instructions
+├── scripts/          # Optional: executable code
+├── references/       # Optional: references and documentation
+├── assets/           # Optional: templates, resources
+└── ...               # Other files or directories
 ```
 
-## 安装技能
+A minimal Skill needs only a `SKILL.md` file.
 
-Skill 可以在 Claude 和 ChatGPT 这类 GUI 的 App 中使用，也可以在 Cursor 和 Claude Code 这类编程 IDE 及 TUI CLI 中使用，还可以在 OpenClaw 等 Agent Harness 上使用。
+The YAML frontmatter in `SKILL.md` requires `name` and `description`; it may also declare `license`, `compatibility`, `metadata`, and the experimental `allowed-tools`.
 
-安装 Skill 过程的本质，其实就是将 Skill 对应的文件夹放到特定的目录下，以便 AI 能按需加载和使用。
+`name` is limited to 64 characters, uses lowercase letters, numbers, and hyphens, and must match its parent directory. `description` is limited to 1,024 characters and should explain both what the Skill does and when to use it. Keep the body below 500 lines and 5,000 tokens, moving details into focused resource files.
 
-### 类 Claude App 生态
+In addition to `SKILL.md`, a Skill may include the following optional files or directories:
 
-![](assets/media/claude_app.png)
+- `scripts/`: directly executable code for repeated, complex, or deterministic operations such as data processing, format conversion, and output validation.
+- `references/`: supporting material that the Agent reads only for relevant tasks, such as domain knowledge, technical documentation, examples, and data-format specifications.
+- `assets/`: static resources used during execution or included in outputs, such as document templates, configuration templates, images, lookup tables, and schemas.
+- Other files: licenses, human-facing documentation, or any other files and directories needed to complete the task.
 
-目前在 App 中使用 Skill 的方式主要有两种：通过 App 自带的 Skill 商店安装，或者通过上传压缩包的方式安装。
+All of these are optional. Reference them from `SKILL.md` using paths relative to the Skill root, and state when the Agent should read or execute each one.
 
-对于官方商店中没有的 Skill，可以从下方推荐的 Skill 第三方商店中下载并手动上传安装。
+Agents usually load a Skill in three stages: at startup, they read only each Skill's `name` and `description` for discovery; when a task matches, they activate and load the full `SKILL.md`; during execution, they read `scripts/`, `references/`, and `assets/` only as needed. This progressive disclosure keeps a large catalog available without consuming unnecessary context.
 
-### 类 Claude Code 生态
+## Install Skills
+
+Skills can be used in GUI apps such as Claude and ChatGPT, IDEs such as Cursor, and TUI CLI tools such as Claude Code.
+
+Installing a Skill essentially means placing its folder in a designated directory so that an Agent can load and use it on demand.
+
+### Shared Directory Convention
+
+Many compatible clients scan `.agents/skills/` at both project and user scope:
+
+```text
+<project>/.agents/skills/<skill-name>/
+~/.agents/skills/<skill-name>/
+```
+
+A project-level Skill normally overrides a user-level Skill with the same name. Clients may also scan their own native directories, so confirm exact paths in the product documentation. Because project Skills arrive with a repository, inspect the source and contents before loading Skills from an unfamiliar checkout.
+
+### Installing in Apps
+
+![](assets/media/workbuddy.png)
+
+There are currently two main ways to use Skills in the App: install through the App's built-in Skill store, or install by uploading a zip file.
+
+Some Apps now provide a built-in Skill store or management entry point for convenient installation and management.
+
+For Skills not available in the official store, you can download them from the recommended third-party Skill stores below and install them manually.
+
+### Installing in the CLI
 
 ![](assets/media/skills_mp.png)
 
-推荐使用 [skillsmp](https://skillsmp.com/zh) 商店，该商店中自动抓取了 Github 上的所有的 Skill 项目，并按照分类、更新时间、星标数量等标签进行了分类整理。
+Use the [skillsmp](https://skillsmp.com/zh) marketplace to discover Skill projects on GitHub and filter them by category, update time, star count, and other tags.
 
-可辅助使用 Vercel 出品的 [skills.sh](https://skills.sh/) 排行榜，直观查看当前最受欢迎的 Skills 仓库和单个 Skill 的使用情况。
+You can also use Vercel's [skills.sh](https://skills.sh/) leaderboard to intuitively view the most popular Skills repositories and individual Skill usage.
 
-对于特定的 skill，使用 `npx skills` 命令行工具可快速发现、添加和管理 skill，具体参数详见 [vercel-labs/skills](https://github.com/vercel-labs/skills)。
-
-```bash
-npx skills find [query]                          # 搜索相关技能
-npx skills add <owner/repo>                      # 安装技能（支持 GitHub 简写、完整 URL、本地路径）
-npx skills list                                  # 列出已安装的技能
-npx skills check                                 # 检查可用更新
-npx skills update                                # 升级所有技能
-npx skills remove [skill-name]                   # 卸载技能
-```
-
-### 类 OpenClaw 生态
-
-![](assets/media/clawhub.png)
-
-如果有科学上网的能力，且使用官方版本 OpeClaw，推荐使用官方的 [ClawHub](https://clawhub.com/) 商店，提供的技能更偏技术向且包含了大量海外产品的整合。
+For a specific Skill, use the `npx skills` command-line tool to quickly discover, add, and manage it. For detailed parameters, see [vercel-labs/skills](https://github.com/vercel-labs/skills).
 
 ```bash
-npx clawhub search [query]          # 搜索相关技能
-npx clawhub explore                 # 浏览技能市场
-npx clawhub install <slug>          # 安装技能
-npx clawhub uninstall <slug>        # 卸载技能
-npx clawhub list                    # 列出已安装的技能
-npx clawhub update --all            # 升级所有技能
-npx clawhub inspect <slug>          # 查看技能详情（不安装）
+npx skills find [query]                          # Search for related skills
+npx skills add <owner/repo>                      # Install skills (supports GitHub shorthand, full URL, local path)
+npx skills add <owner/repo> --list               # Preview the skills in a repository
+npx skills use <owner/repo@skill>                # Use temporarily without installing
+npx skills list                                  # List installed skills
+npx skills update [skill-name]                   # Update one or more skills
+npx skills remove [skill-name]                   # Uninstall skills
+npx skills init [skill-name]                     # Create a skill template
 ```
 
-![](assets/media/skillshub.png)
+The current `skills` CLI supports more than 70 Agents and lets you choose project or global scope, target Agents, and copy or symbolic-link installation. See [vercel-labs/skills](https://github.com/vercel-labs/skills) for current parameters.
 
-对于主要在国内网络环境下使用，或者是使用国内定制版的 OpenClaw，推荐使用腾讯推出的 [SkillHub](https://skillhub.tencent.com/) 商店，提供了大量更符合中国用户使用需求的技能。
-
-首先，需要安装 Skill Hub CLI 工具，可以通过以下命令进行安装：
+If version pinning and supply-chain provenance matter more, GitHub CLI 2.90.0 and later provide the public-preview `gh skill` commands:
 
 ```bash
-curl -fsSL https://skillhub-1388575217.cos.ap-guangzhou.myqcloud.com/install/install.sh | bash
+gh skill search <query>                          # Search for Skills
+gh skill preview <owner/repo> <skill>            # Inspect content before installation
+gh skill install <owner/repo> <skill>@<tag>      # Install from a tag
+gh skill install <owner/repo> <skill> --pin <sha> # Pin to a commit
+gh skill update --all                            # Check for and install updates
+gh skill publish                                 # Validate and publish a Skill
 ```
 
-安装完成后，可以使用以下命令来安装和管理技能：
+`gh skill` records the repository, ref, and Git tree SHA, and can be combined with immutable releases, secret scanning, and code scanning. See the [GitHub announcement](https://github.blog/changelog/2026-04-16-manage-agent-skills-with-github-cli/).
 
-```bash
-skillhub search [query] # 搜索相关技能
-skillhub install <skill-name> # 使用 skill name 添加技能
-skillhub list # 列出已安装的技能
-skillhub upgrade # 升级已安装的技能
-```
+## Quality Tutorials
 
-## 优质教程
+### Official Documentation
 
-### 官方文档
+- @Agent Skills: [Overview](https://agentskills.io/home), [Specification](https://agentskills.io/specification), and [Quickstart](https://agentskills.io/skill-creation/quickstart)
+- @Agent Skills: [Creator best practices](https://agentskills.io/skill-creation/best-practices), [Quality evaluation](https://agentskills.io/skill-creation/evaluating-skills), [Description optimization](https://agentskills.io/skill-creation/optimizing-descriptions), and [Script design](https://agentskills.io/skill-creation/using-scripts)
+- @Agent Skills: [Add Skills support to an agent](https://agentskills.io/client-implementation/adding-skills-support)
+- @Anthropic: [Claude Skills Complete Build Guide](docs/Claude-Skills-完全构建指南.md)
+- @Anthropic: [Claude Agent Skills Practical Experience](docs/Claude-Code-Skills-实战经验.md)
+- @Google: [5 Agent Skill Design Patterns](docs/Agent-Skill-五种设计模式.md)
 
-- @Anthropic：[Claude Skill 完全构建指南](docs/Claude-Skills-完全构建指南.md) 
-- @Anthropic：[Claude Agent Skills 实战经验](docs/Claude-Code-Skills-实战经验.md)
-- @Google：[Agent Skills 五种设计模式](docs/Agent-Skill-五种设计模式.md)
+### Written Tutorials
 
-### 图文教程
+- @libukai: [Agent Skills Introduction Slides](assets/docs/Agent%20Skills%20终极指南.pdf)
+- @Eze: [Agent Skills Ultimate Guide: Getting Started, Mastery, and Predictions](https://mp.weixin.qq.com/s/jUylk813LYbKw0sLiIttTQ)
+- @deeptoai: [Claude Agent Skills First Principles Deep Dive](https://skills.deeptoai.com/zh/docs/ai-ml/claude-agent-skills-first-principles-deep-dive)
 
-  - @李不凯正在研究：[Agent Skills 简要介绍 PPT](/assets/docs/Agent%20Skills%20终极指南.pdf)
--   @一泽 Eze：[Agent Skills 终极指南：入门、精通、预测](https://mp.weixin.qq.com/s/jUylk813LYbKw0sLiIttTQ)
--   @deeptoai：[Claude Agent Skills 第一性原理深度解析](https://skills.deeptoai.com/zh/docs/ai-ml/claude-agent-skills-first-principles-deep-dive)
+### Video Tutorials
 
-### 视频教程
+- @Mark's Tech Workshop: [Agent Skill: From Usage to Principles, All in One](https://www.youtube.com/watch?v=yDc0_8emz7M)
+- @BaiBai on LLMs: [Stop Building Agents, the Future is Skills](https://www.youtube.com/watch?v=xeoWgfkxADI)
+- @01Coder: [OpenCode + GLM + Agent Skills for High-Quality Dev Environment](https://www.youtube.com/watch?v=mGzY2bCoVhU)
 
--   @马克的技术工作坊：[Agent Skill 从使用到原理，一次讲清](https://www.youtube.com/watch?v=yDc0_8emz7M)
--   @宝玉：[Agent Skills 设计哲学和实战进化](https://x.com/dotey/status/2036114136245969025)
-
-## 官方项目
+## Official Skills
 
 <table>
-<tr><th colspan="5">🤖 AI 模型与平台</th></tr>
+<tr><th colspan="5">🤖 AI Models & Platforms</th></tr>
 <tr>
 <td><a href="https://github.com/anthropics/skills">anthropics</a></td>
 <td><a href="https://github.com/openai/skills">openai</a></td>
 <td><a href="https://github.com/google-gemini/gemini-skills">gemini</a></td>
 <td><a href="https://github.com/huggingface/skills">huggingface</a></td>
-<td><a href="https://github.com/replicate/skills">replicate</a></td>
+<td><a href="https://github.com/replicate/skills">replicates</a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/elevenlabs/skills">elevenlabs</a></td>
 <td><a href="https://github.com/black-forest-labs/skills">black-forest-labs</a></td>
-<td></td>
-<td></td>
+<td><a href="https://github.com/google/skills">google</a></td>
+<td><a href="https://github.com/NVIDIA/skills">nvidia</a></td>
 <td></td>
 </tr>
-<tr><th colspan="5">☁️ 云服务与基础设施</th></tr>
+<tr><th colspan="5">☁️ Cloud Services & Infrastructure</th></tr>
 <tr>
 <td><a href="https://github.com/cloudflare/skills">cloudflare</a></td>
 <td><a href="https://github.com/hashicorp/agent-skills">hashicorp</a></td>
@@ -167,22 +188,29 @@ skillhub upgrade # 升级已安装的技能
 <td><a href="https://github.com/stripe/ai">stripe</a></td>
 <td><a href="https://github.com/launchdarkly/agent-skills">launchdarkly</a></td>
 <td><a href="https://github.com/getsentry/skills">sentry</a></td>
-<td></td>
+<td><a href="https://github.com/aws/agent-toolkit-for-aws">aws</a></td>
+<td><a href="https://github.com/amd/skills">amd</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/elastic/agent-skills">elastic</a></td>
+<td><a href="https://github.com/mongodb/agent-skills">mongodb</a></td>
+<td><a href="https://github.com/redis/agent-skills">redis</a></td>
+<td><a href="https://github.com/wandb/skills">wandb</a></td>
 <td></td>
 </tr>
-<tr><th colspan="5">🛠️ 开发框架与工具</th></tr>
+<tr><th colspan="5">🛠️ Dev Frameworks & Tools</th></tr>
 <tr>
 <td><a href="https://github.com/vercel-labs/agent-skills">vercel</a></td>
-<td><a href="https://github.com/microsoft/agent-skills">microsoft</a></td>
+<td><a href="https://github.com/microsoft/skills">microsoft</a></td>
 <td><a href="https://github.com/expo/skills">expo</a></td>
 <td><a href="https://github.com/better-auth/skills">better-auth</a></td>
 <td><a href="https://github.com/posit-dev/skills">posit</a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/remotion-dev/skills">remotion</a></td>
-<td><a href="https://github.com/slidevjs/slidev">slidev</a></td>
-<td><a href="https://github.com/vercel-labs/agent-browser">agent-browser</a></td>
-<td><a href="https://github.com/browser-use/browser-use">browser-use</a></td>
+<td><a href="https://github.com/slidevjs/slidev/tree/main/skills/slidev">slidev</a></td>
+<td><a href="https://github.com/vercel-labs/agent-browser/tree/main/skills">agent-browser</a></td>
+<td><a href="https://github.com/browser-use/browser-use/tree/main/skills">browser-use</a></td>
 <td><a href="https://github.com/firecrawl/cli">firecrawl</a></td>
 </tr>
 <tr>
@@ -192,112 +220,110 @@ skillhub upgrade # 升级已安装的技能
 <td></td>
 <td></td>
 </tr>
-<tr><th colspan="5">📝 内容与协作</th></tr>
+<tr><th colspan="5">📝 Content & Collaboration</th></tr>
 <tr>
 <td><a href="https://github.com/makenotion/skills">notion</a></td>
 <td><a href="https://github.com/kepano/obsidian-skills">obsidian</a></td>
 <td><a href="https://github.com/WordPress/agent-skills">wordpress</a></td>
-<td><a href="https://github.com/langgenius/dify">dify</a></td>
-<td><a href="https://github.com/sanity-io/agent-toolkit">sanity</a></td>
+<td><a href="https://github.com/langgenius/dify/tree/main/.claude/skills">dify</a></td>
+<td><a href="https://github.com/sanity-io/agent-toolkit/tree/main/skills">sanity</a></td>
 </tr>
 <tr>
-<td><a href="https://github.com/hardhackerlabs/podwise">podwise-cli</a></td>
+<td><a href="https://github.com/hardhackerlabs/podwise-cli">podwise-cli</a></td>
 <td><a href="https://github.com/wpsnote/wpsnote-skills">wps</a></td>
 <td><a href="https://github.com/marswaveai/skills">listenhub</a></td>
-<td></td>
+<td><a href="https://github.com/larksuite/cli">lark</a></td>
 <td></td>
 </tr>
 </table>
 
-## 精选技能
+## Featured Skills
 
-### 编程开发
+### Programming & Development
 
--   [superpowers](https://github.com/obra/superpowers)：涵盖完整编程项目工作流程
--   [frontend-design](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/frontend-design)：前端设计技能
--   [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)：更精致和个性化的 UI/UX 设计
--   [code-review](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review)：代码审查技能
--   [code-simplifier](hhttps://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier)：代码简化技能
--   [commit-commands](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/commit-commands)：Git 提交技能
+-   [superpowers](https://github.com/obra/superpowers): Complete programming project workflow
+-   [frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design): Frontend design skills
+-   [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill): More refined and personalized UI/UX design
+-   [archify](https://github.com/tt-a1i/archify): Verifiable, exportable architecture and workflow diagrams
+-   [text-to-cad](https://github.com/earthtojake/text-to-cad): CAD, CAE, and CAM agent skills
+-   [native-feel-skill](https://github.com/yetone/native-feel-skill): Native-feeling cross-platform desktop app guidance
 
+### Content Creation
 
-### 内容创作
+-   [baoyu-skills](https://github.com/JimLiu/baoyu-skills): Baoyu's personal Skills collection, including WeChat article writing, PPT creation, etc.
+-   [libukai](https://github.com/shikaijiaoyu/awesome-agent-skills): Obsidian-related skill collection, tailored for Obsidian writing workflows
+-   [guizang-ppt-skill](https://github.com/op7418/guizang-ppt-skill): Polished HTML slide-deck generation
+-   [cclank](https://github.com/cclank/news-aggregator-skill): Automatically fetch and summarize the latest news in specified domains
+-   [huangserva](https://github.com/huangserva/skill-prompt-generator): Generate and optimize AI portrait text-to-image prompts
+-   [dontbesilent](https://github.com/dontbesilent2025/dbskill): Content creation framework by an X influencer based on their own tweets
+-   [seekjourney](https://github.com/geekjourneyx/md2wechat-skill/): AI-assisted WeChat article writing from drafting to publishing
+-   [cangjie-skill](https://github.com/kangarooking/cangjie-skill): Distill books, videos, and podcasts into executable Agent Skills
 
--   [baoyu-skills](https://github.com/JimLiu/baoyu-skills)：宝玉的自用 SKills 集合，包括公众号写作、PPT 制作等
--   [libukai](https://github.com/libukai/awesome-agent-skills): Obsidian 相关技能集合，专门适配 Obsidian 的写作场景
--   [op7418](https://github.com/op7418)：歸藏创作的高质量 PPT 制作、Youtube 分析技能
--   [cclank](https://github.com/cclank/news-aggregator-skill)：自动抓取和总结指定领域的最新资讯
--   [huangserva](https://github.com/huangserva/skill-prompt-generator)：生成和优化 AI 人像文生图提示词
--   [dontbesilent](https://github.com/dontbesilent2025/dbskill)： X 万粉大V 基于自己的推文制作的内容创作框架
--   [seekjourney](https://github.com/geekjourneyx/md2wechat-skill/)：从写作到发布的 AI 辅助公众号写作
+### Product Usage
 
-### 产品使用
+-   [wps](https://github.com/wpsnote/wpsnote-skills): Control WPS office software
+-   [notebooklm](https://github.com/teng-lin/notebooklm-py): Control NotebookLM
+-   [n8n](https://github.com/czlonkowski/n8n-skills): Create n8n workflows
+-   [threejs](https://github.com/cloudai-x/threejs-skills): Assist with Three.js development
+-   [skills-manage](https://github.com/iamzhihuix/skills-manage): Manage local Skills across multiple agent hosts
 
--   [wps](https://github.com/wpsnote/wpsnote-skills)：操控 WPS 办公软件
--   [notebooklm](https://github.com/teng-lin/notebooklm-py)：操控 NotebookLM 
--   [n8n](https://github.com/czlonkowski/n8n-skills)：创建 n8n 工作流
--   [threejs](https://github.com/cloudai-x/threejs-skills)： 辅助开发 Three.js 项目
+### Other Types
 
-### 其他类型
+-  [pua](https://github.com/tanweai/pua): Drive AI to work harder in a PUA style
+-   [office-hours](https://github.com/garrytan/gstack/tree/main/office-hours): Provide startup advice from a YC perspective
+-   [marketingskills](https://github.com/coreyhaines31/marketingskills): Enhance marketing capabilities
+-   [scientific-skills](https://github.com/K-Dense-AI/claude-scientific-skills): Improve skills for researchers
 
--  [pua](https://github.com/tanweai/pua)：以 PUA 的方式驱动 AI 更卖力的干活
--   [office-hours](https://github.com/garrytan/gstack/tree/main/office-hours)：使用 YC 的视角提供各种创业建议
--   [marketingskills](https://github.com/coreyhaines31/marketingskills)：强化市场营销的能力
--   [scientific-skills](https://github.com/K-Dense-AI/claude-scientific-skills)： 提升科研工作者的技能
+## Security Audit
 
+Skills are not passive documentation: descriptions influence discovery, instructions change agent behavior, and scripts may access files, networks, credentials, and external accounts. Review six layers of risk: provenance, content, dependencies, permissions, runtime, and updates.
 
-## 安全审查
+Before installation, prefer official or trusted maintainers, inspect every file with `gh skill preview` or manually, and pin a tag or commit. At runtime, use least privilege, sandboxing, human approval for sensitive actions, and audit logs. Marketplace inclusion, stars, and spec compliance do not prove safety or effectiveness.
 
-由于 Skill 中可能包含了调用外部 API、静默执行定时脚本等具有潜在风险的操作，因此在设计和使用 Skill 时，务必高度重视安全问题。
+For an initial scan, use [Cisco AI Defense Skill Scanner](https://github.com/cisco-ai-defense/skill-scanner) or [slowmist-agent-security](https://github.com/slowmist/slowmist-agent-security). Also see the provenance, skill-card, scanning, and signing model used by [NVIDIA Verified Skills](https://developer.nvidia.com/blog/nvidia-verified-agent-skills-provide-capability-governance-for-ai-agents/). Scanners are signals, not substitutes for review and isolation.
 
-建议在安装 Skill 时，优先选择来自官方商店或知名第三方商店的 Skill，并仔细阅读 Skill 的描述和用户评价，避免安装来源不明的 Skill。
+## Create Skills
 
-对于安全性要求性较高的场景，可以使用 @余弦 的 [slowmist-agent-security skill](https://github.com/slowmist/slowmist-agent-security) 对 Skill 进行安全审计和风险评估，确保 Skill 的安全性和可靠性。
+While you can directly install skills created by others through skill marketplaces, to improve skill fit and personalization, it is strongly recommended to create your own skills as needed, or fine-tune others' skills.
 
-如果使用 OpenClaw 这类具有高度自主权限的 Agent Harness，建议配合使用 [OpenClaw极简安全实践指南](https://github.com/slowmist/openclaw-security-practice-guide) ，通过系统提示词级别的安全约束，最大程度地降低潜在风险。
+### Design Principles
 
-## 创建技能
+- Start from real work: extract successful steps, human corrections, project artifacts, failure cases, and historical fixes instead of generating generic procedures from model knowledge alone.
+- Keep a coherent boundary: one Skill should cover a composable task with an independently verifiable outcome. Overly narrow skills add loading and conflict overhead; broad skills trigger imprecisely.
+- Spend context carefully: include what an agent would otherwise miss or get wrong, move detail into focused reference files, and say exactly when each file should be read.
+- Calibrate control: prescribe fragile, irreversible, or order-sensitive operations; explain goals and reasoning where several approaches are valid.
+- Provide defaults: offer one reliable default with a clear escape hatch, favor reusable procedures, and avoid menus of equal options or answers tailored to one instance.
+- Build a feedback loop with gotchas, output templates, checklists, validation loops, and plan-validate-execute workflows.
 
-虽然可以通过技能商店直接安装他人创建的技能，但是为了提升技能的适配度和个性化，强烈建议根据需要自己动手创建技能，或者在其他人的基础上进行微调。
+### Scripts and Resources
 
-### 官方插件
+Reference an existing command directly when it reliably handles a simple one-off operation. Move repeated or complex logic into tested scripts under `scripts/`. Use paths relative to the skill root and tell the agent exactly when to invoke each file.
 
-通过官方出品的  [skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator) 插件可快速创建和迭代个人专属的 skill。
+- Pin dependency versions and declare runtime or network requirements in `compatibility` or the instructions.
+- Avoid interactive prompts. Accept input through flags, environment variables, or stdin, and provide concise `--help` output.
+- Make errors actionable. Write structured data to stdout and diagnostics or progress to stderr.
+- Keep files in `references/` focused and avoid deep chains of references.
 
+See the official [Using scripts in skills](https://agentskills.io/skill-creation/using-scripts) guide.
 
-![](assets/media/skill-creator.png)
+### Testing and Evaluation
 
-### 增强插件
+Skill evaluation has two dimensions. **`description` evaluation** checks whether the Agent activates the Skill when it should and avoids false triggers when it should not. **Skill effectiveness evaluation** checks whether loading the Skill genuinely improves task quality, stability, or efficiency. The first asks, “Can the Agent find the right Skill?” The second asks, “Is the Skill useful once found?” Use a set of realistic tasks with explicit success criteria for regression testing, and compare results against runs without the Skill or with the previous version.
 
-在官方 skill-creator plugin 的基础上，本项目整合来自 Anthropic 和 Google 团队的最佳实践，构建了一个更为强大的 Agent Skills Toolkit，帮助你快速创建和改进 Agent Skills。（**注意：该插件目前仅支持 Claude Code**）
+For the complete workflow, see the official guides to [evaluating Skill output](https://agentskills.io/skill-creation/evaluating-skills) and [optimizing descriptions](https://agentskills.io/skill-creation/optimizing-descriptions).
 
-#### 添加市场
+- [SkillsBench](https://www.skillsbench.ai/): cross-domain benchmark and leaderboard
+- [microsoft/waza](https://github.com/microsoft/waza): create, test, measure, and improve Skills
+- [microsoft/SkillOpt](https://github.com/microsoft/SkillOpt): trajectory- and validation-driven text optimization
+- [alibaba/skill-up](https://github.com/alibaba/skill-up): evaluation and evolution tooling
+- [rpamis/comet](https://github.com/rpamis/comet): turn ideas into evaluated agent workflows
 
-启动 Claude Code，进入插件市场，添加 `libukai/awesome-agent-skills` 市场，也可以直接在输入框中使用以下指令添加市场：
+Existing research points to the same conclusion: a focused Skill with explicit acceptance criteria and continuous regression testing is usually more reliable than an all-encompassing knowledge bundle; an outdated or mismatched Skill can increase cost and even reduce success rates.
 
-```bash
-/plugin marketplace add libukai/awesome-agent-skills
-```
-
-#### 安装插件
-
-成功安装市场之后，选择安装 `agent-skills-toolkit` 插件
-
-![](assets/media/skill-creator-pro.png)
-
-#### 快捷指令
-
-插件中置入了多个快捷指令，覆盖了从创建、改进、测试到优化技能描述的完整工作流程：
-
-- `/agent-skills-toolkit:skill-creator-pro` - 完整工作流程
-- `/agent-skills-toolkit:create-skill` - 创建新 skill
-- `/agent-skills-toolkit:improve-skill` - 改进现有 skill
-- `/agent-skills-toolkit:test-skill` - 测试评估 skill
-
-## 致谢
+## Special Thanks
 
 ![](assets/media/talk_is_cheap.jpg)
 
-## 项目历史
+## Project History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=libukai/awesome-agent-skills&type=date&legend=top-left)](https://www.star-history.com/#libukai/awesome-agent-skills&type=date&legend=top-left)
+[![](assets/media/20260805233809.png)](https://www.star-history.com/?repos=shikaijiaoyu%2Fawesome-agent-skills&type=date&legend=top-left)
